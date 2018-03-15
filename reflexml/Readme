@@ -1,5 +1,5 @@
-have all dependencies from /reflexml/requirements.txt
-reflexml project is using python 2 and is not compatible with python 3
+Have all dependencies from /reflexml/requirements.txt
+Reflexml project is using python 2 and is not compatible with python 3
 Installing  scikit-image and opencv too is important
 Run https://github.com/Vizzario/reflexml/blob/master/src/reflexml/detection/face.py, To get better understanding on the model works,
 The code also expects the model named "shape_predictor_68_face_landmarks.dat"  to be present under the folder suggested i.e  /opt/dlib/models/shape_predictor_68_face_landmarks.dat on your home machine
