@@ -1,0 +1,105 @@
+// Generic gradle build script for Vai Technologies internal software.
+
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+		classpath 'org.ajoberstar:gradle-git:1.4.2'
+		classpath 'ca.cutterslade.gradle:gradle-dependency-analyze:1.0.3'
+		classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
+	}
+
+}
+
+plugins {
+    id 'net.researchgate.release' version '2.4.1'
+    id 'nebula.ospackage' version '3.5.0'
+}
+
+apply from: "semver.gradle"
+
+def appVersion = version
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+def vaiTechBaseInstallDir = "/opt/vizzario"
+def artifactName = "reflexml"
+def installDirectory = "${vaiTechBaseInstallDir}/${artifactName}"
+
+dependencies {
+
+    ospackage {
+        packageName = artifactName
+        version = appVersion
+        // release = 1
+        os = LINUX
+
+        // general deps
+        requires('git')
+        requires('curl')
+        requires('python-dev')
+        requires('cmake')
+        requires('libboost-dev')
+        requires('libboost-python-dev')
+        // requires('python-yaml')
+        // requires('libopencv-dev')
+        // requires('python-opencv')
+
+        // Vai Technologies dependencies
+        requires('vai-model')
+
+        installUtils file('deb/control/control-utils.sh')
+        postInstall file('deb/control/postinst')
+        preUninstall file('deb/control/prerm')
+
+        from('src/reflexml') {
+            into "${installDirectory}/reflexml"
+        }
+        from('src/setup.py') {
+            into installDirectory
+        }
+        from('src/requirements.txt') {
+            into installDirectory
+        }
+    }
+}
+
+// Vai Technologies task for upload of 
+task apt(type: Exec) {
+    group = "Target"
+    description = "(VAI) upload *deb to s3"
+    executable "bash"
+    args "-c", "deb-s3 upload build/distributions/*.deb --bucket vizz-deb --arch amd64"
+}
+
+
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'maven-publish-auth'
+
+publishing {
+    publications {
+        mavenDeb(MavenPublication) {
+            version version
+            groupId 'com.vizz.ml'
+            artifactId "${artifactName}"
+            artifact source: buildDeb, extension: 'deb' classifier 'all'
+        }
+    }
+}
+
+task deb(dependsOn: buildDeb)
+
+release {
+    buildTasks = ['build', 'deb']
+    // useAutomaticVersion = true
+}
+
+apt.mustRunAfter deb
