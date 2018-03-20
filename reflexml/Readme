@@ -4,4 +4,4 @@ Installing  scikit-image and opencv too is important
 Run https://github.com/Vizzario/reflexml/blob/master/src/reflexml/detection/face.py, To get better understanding on the model works,
 The code also expects the model named "shape_predictor_68_face_landmarks.dat"  to be present under the folder suggested i.e  /opt/dlib/models/shape_predictor_68_face_landmarks.dat on your home machine
 Run face.py using python -m reflex.detection.face from src folder. It exec code in globals and expects relative import not beyond toplevel package. 
-Syntax python -m reflex.detection.face also expects the image argument, so one can pass .jpg image as an argument. 
+Syntax python -m reflexml.detection.face also expects the image argument, so one can pass .jpg image as an argument. 
